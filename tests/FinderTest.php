@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 
 class FinderTest extends TestCase
 {
+    protected static string $var = __DIR__ . '/var';
     protected static string $folderA;
     protected static string $folderB;
     protected static string $folderBC;
@@ -19,16 +20,22 @@ class FinderTest extends TestCase
     {
         parent::setUpBeforeClass();
 
-        $root = __DIR__ . '/var';
-        @mkdir($root, recursive: true);
+        @mkdir(self::$var, recursive: true);
 
-        self::$folderA = "$root/a";
-        self::$folderB = "$root/b";
-        self::$folderBC = "$root/b-copy";
-        self::$folderC = "$root/c";
-        self::$folderD = "$root/d";
+        self::$folderA = self::$var . '/a';
+        self::$folderB = self::$var . '/b';
+        self::$folderBC = self::$var . '/b-copy';
+        self::$folderC = self::$var . '/c';
+        self::$folderD = self::$var . '/d';
 
         self::fillFolder(self::$folderA);
+    }
+
+    public static function tearDownAfterClass(): void
+    {
+        parent::tearDownAfterClass();
+
+        (new Finder())->removeFolder(self::$var);
     }
 
     protected static function fillFolder(string $folder): void
@@ -143,6 +150,14 @@ class FinderTest extends TestCase
         }
     }
 
+    public function test_failed_mkdir(): void
+    {
+        $finder = new Finder();
+
+        $this->expectException(FinderException::class);
+        $finder->mkdir(self::$folderA . '/a.php');
+    }
+
     public function test_successful_symlink(): void
     {
         $finder = new Finder();
@@ -158,6 +173,15 @@ class FinderTest extends TestCase
             $this->assertTrue(is_link($link));
             $this->assertEquals($target, readlink($link));
         }
+
+        $filename = 'a.php';
+
+        $this->assertTrue(
+            $finder->symlink(
+                self::$folderA . "/$filename",
+                self::$folderC . "/$filename",
+            )
+        );
     }
 
     public function test_failed_symlink(): void

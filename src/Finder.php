@@ -66,7 +66,7 @@ class Finder
             return true;
         }
 
-        if (!@mkdir($folder, $permissions, true)) {
+        if (@!mkdir($folder, $permissions, true)) {
             throw new FinderException(sprintf('Directory "%s" was not created', $folder));
         }
 
