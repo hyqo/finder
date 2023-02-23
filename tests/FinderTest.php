@@ -128,6 +128,8 @@ class FinderTest extends TestCase
         $finder->save($file, $content);
 
         $this->assertStringEqualsFile($file, $content);
+
+        @unlink($file);
     }
 
     public function test_successful_mkdir(): void
