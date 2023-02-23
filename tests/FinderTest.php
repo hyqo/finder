@@ -30,7 +30,7 @@ class FinderTest extends TestCase
         self::$folderC = "$root/c";
         self::$folderD = "$root/d";
 
-        @mkdir(self::$folderRO, 000, true);
+        @mkdir(self::$folderRO, 0100, true);
 
         self::fillFolder(self::$folderA);
     }
@@ -118,6 +118,18 @@ class FinderTest extends TestCase
         $this->assertNull($content);
     }
 
+    public function test_save(): void
+    {
+        $finder = new Finder();
+
+        $file = self::$folderA . '/foo.bar.txt';
+        $content = 'foo:bar';
+
+        $finder->save($file, $content);
+
+        $this->assertStringEqualsFile($file, $content);
+    }
+
     public function test_successful_mkdir(): void
     {
         $finder = new Finder();
@@ -137,14 +149,8 @@ class FinderTest extends TestCase
     {
         $finder = new Finder();
 
-        $deniedFolder = self::$folderRO;
-
-        if (!is_dir($deniedFolder)) {
-            mkdir($deniedFolder, 0000);
-        }
-
         $this->expectException(FinderException::class);
-        $finder->mkdir($deniedFolder . '/folder');
+        $finder->mkdir(self::$folderRO . '/folder');
     }
 
     public function test_successful_symlink(): void

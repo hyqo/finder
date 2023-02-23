@@ -2,6 +2,7 @@
 
 namespace Hyqo\Finder;
 
+use FilesystemIterator;
 use Generator;
 use Hyqo\Finder\Exception\FinderException;
 use SplFileInfo;
@@ -20,7 +21,7 @@ class Finder
 
         $folder = $this->normalizePath($folder);
 
-        $dir = new \RecursiveDirectoryIterator($folder, \RecursiveDirectoryIterator::SKIP_DOTS);
+        $dir = new \RecursiveDirectoryIterator($folder, FilesystemIterator::SKIP_DOTS);
         yield from new \RecursiveIteratorIterator($dir);
     }
 
@@ -32,10 +33,6 @@ class Finder
     public function find(string $folder, ?string $extension = null): Generator
     {
         foreach ($this->iterate($folder) as $file) {
-            if (!$file->isFile()) {
-                continue;
-            }
-
             if (null === $extension || !strcasecmp($file->getExtension(), $extension)) {
                 yield $file->getPathname();
             }
@@ -56,11 +53,6 @@ class Finder
         return file_get_contents($filename);
     }
 
-    public function touch(string $filename): bool
-    {
-        return $this->save($filename, '');
-    }
-
     public function save(string $filename, string $content): bool
     {
         $this->mkdir(dirname($filename));
@@ -74,7 +66,7 @@ class Finder
             return true;
         }
 
-        if (!mkdir($folder, $permissions, true)) {
+        if (!@mkdir($folder, $permissions, true)) {
             throw new FinderException(sprintf('Directory "%s" was not created', $folder));
         }
 
