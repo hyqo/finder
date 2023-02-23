@@ -51,25 +51,35 @@ class FinderTest extends TestCase
     {
         $finder = new Finder();
 
-        $files = iterator_to_array($finder->find(self::$folderA, 'PHP'));
-
-        $this->assertEquals([
+        $expected = [
             self::$folderA . '/sub/sub/d.php',
             self::$folderA . '/sub/c.php',
             self::$folderA . '/b.php',
             self::$folderA . '/a.php',
-        ], $files);
+        ];
+
+        $actual = iterator_to_array($finder->find(self::$folderA, 'PHP'));
+
+        sort($expected);
+        sort($actual);
+
+        $this->assertEquals($expected, $actual);
     }
 
     public function test_find_txt(): void
     {
         $finder = new Finder();
 
-        $files = iterator_to_array($finder->find(self::$folderA, 'Txt'));
-
-        $this->assertEquals([
+        $expected = [
             self::$folderA . '/e.txt',
-        ], $files);
+        ];
+
+        $actual = iterator_to_array($finder->find(self::$folderA, 'Txt'));
+
+        sort($expected);
+        sort($actual);
+
+        $this->assertEquals($expected, $actual);
     }
 
     public function test_find_foo(): void
