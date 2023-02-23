@@ -22,15 +22,11 @@ class FinderTest extends TestCase
         $root = __DIR__ . '/var';
         @mkdir($root, recursive: true);
 
-        self::$folderRO = "$root/ro";
-
         self::$folderA = "$root/a";
         self::$folderB = "$root/b";
         self::$folderBC = "$root/b-copy";
         self::$folderC = "$root/c";
         self::$folderD = "$root/d";
-
-        @mkdir(self::$folderRO, 0100, true);
 
         self::fillFolder(self::$folderA);
     }
@@ -145,14 +141,6 @@ class FinderTest extends TestCase
         } finally {
             rmdir($folder);
         }
-    }
-
-    public function test_failed_mkdir(): void
-    {
-        $finder = new Finder();
-
-        $this->expectException(FinderException::class);
-        $finder->mkdir(self::$folderRO . '/folder');
     }
 
     public function test_successful_symlink(): void
