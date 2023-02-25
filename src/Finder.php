@@ -79,13 +79,13 @@ class Finder
             throw new FinderException(sprintf("This is not a file: %s", $target));
         }
 
+        if (file_exists($link)) {
+            return true;
+        }
+
         $folder = dirname($link);
 
         $this->mkdir($folder);
-
-        if (is_file($link)) {
-            return true;
-        }
 
         return symlink($target, $link);
     }
