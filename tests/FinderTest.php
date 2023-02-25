@@ -34,8 +34,7 @@ class FinderTest extends TestCase
     public static function tearDownAfterClass(): void
     {
         parent::tearDownAfterClass();
-
-        (new Finder())->removeFolder(self::$var);
+//        (new Finder())->removeFolder(self::$var);
     }
 
     protected static function fillFolder(string $folder): void
@@ -228,5 +227,41 @@ class FinderTest extends TestCase
         $finder->removeFolder(self::$folderBC);
 
         $this->assertDirectoryDoesNotExist(self::$folderBC);
+    }
+
+    public function test_successful_wipe(): void
+    {
+        $finder = new Finder();
+
+        self::fillFolder(self::$folderD);
+
+//        $finder->wipe(self::$folderD, '/f');
+//        $finder->wipe(self::$folderD, '/s');
+//        $finder->wipe(self::$folderD, '/sub/c.php');
+        $result = $finder->wipe(self::$folderD, '/sub/sub/d.php/fake');
+
+        $this->assertTrue($result);
+
+        $this->assertFileDoesNotExist(self::$folderD . '/sub/../sub/sub/d.php');
+        $this->assertDirectoryDoesNotExist(self::$folderD . '/sub/sub');
+
+        $this->assertDirectoryExists(self::$folderD . '/sub');
+
+        $result = $finder->wipe(self::$folderD, '/f');
+
+        $this->assertTrue($result);
+
+        $this->assertFileDoesNotExist(self::$folderD . '/f');
+
+        $this->assertDirectoryExists(self::$folderD);
+    }
+
+    public function test_failed_wipe(): void
+    {
+        $finder = new Finder();
+
+        $result = $finder->wipe(self::$folderD . '/foo', '/bar');
+
+        $this->assertFalse($result);
     }
 }

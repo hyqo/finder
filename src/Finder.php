@@ -5,6 +5,8 @@ namespace Hyqo\Finder;
 use FilesystemIterator;
 use Generator;
 use Hyqo\Finder\Exception\FinderException;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 use SplFileInfo;
 
 class Finder
@@ -21,8 +23,8 @@ class Finder
 
         $folder = $this->normalizePath($folder);
 
-        $dir = new \RecursiveDirectoryIterator($folder, FilesystemIterator::SKIP_DOTS);
-        yield from new \RecursiveIteratorIterator($dir);
+        $dir = new RecursiveDirectoryIterator($folder, FilesystemIterator::SKIP_DOTS);
+        yield from new RecursiveIteratorIterator($dir);
     }
 
     /**
@@ -114,6 +116,50 @@ class Finder
         $this->flushFolder($folder);
 
         rmdir($folder);
+
+        return true;
+    }
+
+    public function wipe(string $folder, string $relativePath): bool
+    {
+        $folder = realpath($folder);
+
+        if (!$folder) {
+            return false;
+        }
+
+        $absolutePath = rtrim($folder . $relativePath, DIRECTORY_SEPARATOR);
+
+        $lastChunkPattern = sprintf('#%1$s[^%1$s]*$#', DIRECTORY_SEPARATOR);
+
+        while ($this->doWipe($folder, $absolutePath)) {
+            $absolutePath = preg_replace($lastChunkPattern, '', $absolutePath);
+        }
+
+        return true;
+    }
+
+    protected function doWipe(string $folder, string $absolutePath): bool
+    {
+        $realpath = realpath($absolutePath);
+
+        if (!$realpath) {
+            return true;
+        }
+
+        if ($realpath === $folder) {
+            return false;
+        }
+
+        if (is_dir($absolutePath)) {
+            if ($this->isEmpty($absolutePath)) {
+                rmdir($absolutePath);
+            } else {
+                return false;
+            }
+        } else {
+            unlink($absolutePath);
+        }
 
         return true;
     }
