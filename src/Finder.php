@@ -113,6 +113,10 @@ class Finder
 
     public function removeFolder(string $folder): true
     {
+        if (!is_dir($folder)) {
+            return true;
+        }
+
         $this->flushFolder($folder);
 
         rmdir($folder);
