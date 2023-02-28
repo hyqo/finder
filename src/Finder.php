@@ -30,15 +30,20 @@ class Finder
     /**
      * @param string $folder
      * @param null|string $extension
-     * @return Generator<array-key,void,void,string>
+     * @return Generator<array-key,void,int,string>
      */
     public function find(string $folder, ?string $extension = null): Generator
     {
+        $filesNum = 0;
+
         foreach ($this->iterate($folder) as $file) {
             if (null === $extension || !strcasecmp($file->getExtension(), $extension)) {
+                $filesNum++;
                 yield $file->getPathname();
             }
         }
+
+        return $filesNum;
     }
 
     protected function normalizePath(string $path): string

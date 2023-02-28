@@ -60,12 +60,14 @@ class FinderTest extends TestCase
             self::$folderA . '/a.php',
         ];
 
-        $actual = iterator_to_array($finder->find(self::$folderA, 'PHP'));
+        $generator = $finder->find(self::$folderA, 'PHP');
+        $actual = iterator_to_array($generator);
 
         sort($expected);
         sort($actual);
 
         $this->assertEquals($expected, $actual);
+        $this->assertEquals(4, $generator->getReturn());
     }
 
     public function test_find_txt(): void
@@ -88,9 +90,11 @@ class FinderTest extends TestCase
     {
         $finder = new Finder();
 
-        $files = iterator_to_array($finder->find(self::$folderA, 'foo'));
+        $generator = $finder->find(self::$folderA, 'foo');
+        $files = iterator_to_array($generator);
 
         $this->assertEquals([], $files);
+        $this->assertEquals(0, $generator->getReturn());
     }
 
     public function test_folder_does_not_exist(): void
@@ -235,9 +239,6 @@ class FinderTest extends TestCase
 
         self::fillFolder(self::$folderD);
 
-//        $finder->wipe(self::$folderD, '/f');
-//        $finder->wipe(self::$folderD, '/s');
-//        $finder->wipe(self::$folderD, '/sub/c.php');
         $result = $finder->wipe(self::$folderD, '/sub/sub/d.php/fake');
 
         $this->assertTrue($result);
